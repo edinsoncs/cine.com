@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Bower, Materialize, Jquery, Nodejs, Json => Edinson Carranza Saldaña">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="bower_components/materialize/dist/css/materialize.min.css">
+    <link rel="stylesheet" href="public/css/index.css">
+    <title>Crawler Cine.com</title>
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container">
+				<div class="row">
+					<figure class="col l6">
+					    <h4 class="title">
+										Data JSON CINE.COM
+									</h4>
+					</figure>
+					<div class="col l6">
+					    <!-- Place this tag where you want the button to render. -->
+					    <a class="github-button" href="https://github.com/ockang/cine.com" data-style="mega" data-count-href="/ockang/cine.com/stargazers" data-count-api="/repos/ockang/cine.com#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star ockang/cine.com on GitHub">Star</a>
+					    <!-- Place this tag where you want the button to render. -->
+						<a class="github-button" href="https://github.com/ockang" data-style="mega" data-count-href="/ockang/followers" data-count-api="/users/ockang#followers" data-count-aria-label="# followers on GitHub" aria-label="Follow @ockang on GitHub">@ockang</a>
+						<!-- Place this tag where you want the button to render. -->
+						<a class="github-button" href="https://github.com/ockang/cine.com/archive/master.zip" data-style="mega" aria-label="Download ockang/cine.com on GitHub">Download</a>
+					</div>
+				</div>
+
+
+        </div>
+    </header>
+    <main>
+        <div class="container">
+        <div class="row">
+        	<figure class="col l12">
+        		<img src="public/img/crawler.gif" alt="">
+        	</figure>
+        </div>
+        <div class="row">
+          <h5 class="col l12">Create file package.json</h5>
+          <textarea cols="100" rows="20">{
+  "name": "trabajando-crawler",
+  "version": "1.0.0",
+  "description": "utilizando crawler en node",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app"
+  },
+  "keywords": [
+    "crawler",
+    "in",
+    "nodejs"
+  ],
+  "author": "edinsoncs",
+  "license": "MIT",
+  "dependencies": {
+    "crawler": "^0.4.3",
+    "express": "^4.13.4"
+  }
+}
+
+          </textarea>
+          </div>
+          <div class="row">
+          <h5 class="col l12">Create file app.js</h5>
+          <textarea cols="100" rows="20" class="col l12">
+var express = require('express');
+var Crawler = require('crawler');
+var url = require('url');
+var movies = require('./data');
+//Utilizaremos crawler
+
+var servidor = express();
+
+
+var isCrawler = new Crawler({
+	//por defecto vamos a tener 10 connectiones
+	maxConnections: 10,
+	callback: function(err, res, $){
+		$('a').each(function(index, a){
+			var isUrl = $(a).attr('href');
+			console.log(isUrl);
+		});
+	}
+
+});
+
+//Limit id cine.com
+//25205; i < 82999; 
+for(var i = 41479; i < 82999; i++) {
+	
+	isCrawler.queue([{
+		uri: 'http://www.cine.com/peliculas.php?pelicula='+i,
+		jQuery: true,
+
+		callback: function(err, res, $){
+			movies(res, $);
+		}
+	}]);
+
+	console.log(i);
+
+}
+
+
+function puerto(num){
+	num = 3000;
+	return num;
+}
+
+servidor.listen(puerto(), function(){
+	console.log('servidor corriendo');
+});
+
+
+          </textarea>
+          </div>
+          <div class="row">
+          <h5 class="col l12"> Create file data.js</h5>
+          <textarea cols="100" rows="20">
+"use strict";
+//FS
+var fs = require('fs');
+var arr = [];
+
+module.exports = (data, $) => {
+		var web = data.body;
+		var sinopsis = $(web).children().children()[3].attribs.content;
+		var img = $(web).children().children()[8].attribs.content;
+		var tags = $(web).children().children()[4].attribs.content;
+
+		var obj = {
+			'position': {
+				'id': numberID(data.options.uri),
+				'url': data.options.uri,
+				'sinopsis': sinopsis,
+				'img': img,
+				'tags': tags
+
+			}
+
+		}
+
+		arr.push(obj);
+
+		fs.writeFile('save/data.json', JSON.stringify(arr), 'utf-8', (err) =>{
+				if(err) throw err;
+				console.log('go!!!');	
+		});
+
+		function numberID(url){
+			var show = url.replace('http://www.cine.com/peliculas.php?pelicula=', '');
+			console.log(show);
+			return show;
+		}
+}
+          </textarea>
+          </div>
+        </div>
+	    <div class="container">
+	        <div class="row">
+	        	<div class="col l12">
+	        		<a href="public/json/data1.json" download class="link waves-effect waves-light btn-large">Descargar DATA JSON 1</a>
+	        		<a href="public/json/data2.json" download class="link waves-effect waves-light btn-large">Descargar DATA JSON 2</a>
+	        		
+	        	</div>
+	        </div>
+	    </div>
+    </main>
+    <footer class="inFooter">
+    	<div class="container">
+	    	<div class="row">
+	    		<p class="description col l12">
+	    			Power by create Edinson CS
+	    		</p>
+	    	</div>
+    	</div>
+    </footer>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/"></script>
+    <script src="public/js/lib.js"></script>
+</body>
+
+</html>

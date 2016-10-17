@@ -1,0 +1,31 @@
+h1, h2, h3, h4, h5, h6, figure, p, ul {
+	padding: 0;
+	margin: 0;
+}
+h5 {
+	margin-bottom: .5em;
+	padding-left: 0!important;
+}
+
+.header {
+	text-align: center;
+	background-color: #e65100;
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+.header .title {
+	color: white;
+}
+main {
+	margin-top: 1em;
+}
+textarea {
+	height: inherit;
+	resize: none;
+	background-color: black;
+	color: white;
+}
+.inFooter {
+	padding-top 1em;
+	text-align: center;
+}
